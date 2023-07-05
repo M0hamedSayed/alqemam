@@ -24,7 +24,88 @@
     {
       "files": ["*.ts", "*.tsx"],
       "extends": ["plugin:@nx/typescript"],
-      "rules": {}
+      "rules": {
+        "camelcase": "off",
+        "@typescript-eslint/naming-convention": [
+          "error",
+          {
+            "selector": "default",
+            "format": ["camelCase"]
+          },
+          {
+            // variable name with varName or VARNAME
+            "selector": "variable",
+            "format": ["camelCase", "UPPER_CASE"]
+          },
+          {
+            // parameter name with varName or _varName
+            "selector": "parameter",
+            "format": ["camelCase"],
+            "leadingUnderscore": "allow"
+          },
+          {
+            "selector": "function",
+            "format": ["camelCase", "PascalCase"],
+            "leadingUnderscore": "allow"
+          },
+          {
+            "selector": "interface",
+            "format": ["PascalCase"],
+            "custom": {
+              "regex": "^I[A-Z]",
+              "match": true
+            }
+          },
+          {
+            "selector": "memberLike",
+            "modifiers": ["private"],
+            "format": ["camelCase"],
+            "leadingUnderscore": "require"
+          },
+          {
+            "selector": "typeLike",
+            "format": ["PascalCase"]
+          },
+          {
+            "selector": [
+              "classProperty",
+              "objectLiteralProperty",
+              "typeProperty",
+              "classMethod",
+              "objectLiteralMethod",
+              "typeMethod",
+              "accessor",
+              "enumMember"
+            ],
+            "format": null,
+            "modifiers": ["requiresQuotes"]
+          }
+        ],
+        "no-console": "off",
+        "@typescript-eslint/no-unused-vars": [
+          "error",
+          {
+            "vars": "all",
+            "args": "all",
+            "argsIgnorePattern": "^_",
+            "caughtErrorsIgnorePattern": "^ignore"
+          }
+        ],
+        "no-use-before-define": ["error", { "functions": false, "classes": false }],
+        "@typescript-eslint/no-implicit-any-catch": "error",
+        "@typescript-eslint/typedef": [
+          "error",
+          {
+            "arrowParameter": true,
+            "objectDestructuring": false,
+            "arrayDestructuring": true,
+            "variableDeclarationIgnoreFunction": true,
+            "parameter": true,
+            "propertyDeclaration": true
+          }
+        ],
+        "@typescript-eslint/no-explicit-any": "error"
+      }
     },
     {
       "files": ["*.js", "*.jsx"],
