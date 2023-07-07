@@ -5,6 +5,18 @@ import { BadRequestError } from '@alqemam/express-errors';
 import { validateCountryPhone } from './phoneNumber';
 import { Op } from 'sequelize';
 
+export const loginValidations = [
+  body('email').trim().notEmpty().withMessage('Invalid email address!').isEmail().withMessage('Invalid email address!'),
+  body('password')
+    .trim()
+    .notEmpty()
+    .withMessage('password can not be empty!!')
+    .matches(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}/)
+    .withMessage(
+      'Must contain at least one number and one uppercase and lowercase letter, and at least 8 or more characters.',
+    ),
+]; //login validation
+
 export const registerValidations = [
   body('firstName')
     .trim()
@@ -68,7 +80,7 @@ export const registerValidations = [
     .custom((_, { req }) => {
       const { country, phoneNumber } = req.body;
       //   if (!country && !phoneNumber) return true;
-      req.phoneNumber = validateCountryPhone(phoneNumber, country);
+      req.phoneNumber = validateCountryPhone(phoneNumber, country || 'EG');
       return true;
     }),
 ]; //registration validation
