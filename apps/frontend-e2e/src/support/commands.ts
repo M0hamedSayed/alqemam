@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/naming-convention */
+/* eslint-disable @typescript-eslint/typedef */
 // ***********************************************
 // This example commands.js shows you how to
 // create various custom commands and overwrite

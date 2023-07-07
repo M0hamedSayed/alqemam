@@ -1,1 +1,50 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import 'primeng/resources/themes/lara-light-blue/theme.css';
+@import 'primeng/resources/primeng.css';
+@import 'primeicons/primeicons.css';
 /* You can add global styles to this file, and also import other style files */
+
+/*------------------------------------*\
+  $Fonts 
+\*------------------------------------*/
+@font-face {
+  font-family: DinAr;
+  src: url(./assets/fonts/DIN.ttf);
+}
+
+@font-face {
+  font-family: DinBoldAr;
+  src: url(./assets/fonts/DIN-bold.ttf);
+}
+
+/*------------------------------------*\
+    $CUSTOM VARIABLES / Basics
+\*------------------------------------*/
+:root,
+body {
+  --font: DinAr;
+  --font-bold: DinBoldAr;
+  font-family: var(--font);
+  /* overflow: hidden; */
+}
+
+.iti {
+  display: block !important;
+}
+
+input.ng-valid:not(input.ng-untouched, input.is-invalid) {
+  border-color: green;
+  border-width: 2px;
+}
+
+input.is-invalid {
+  border-color: red;
+  border-width: 2px;
+}
+
+.invalid-feedback {
+  color: red;
+}
