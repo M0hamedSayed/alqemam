@@ -1,0 +1,264 @@
+<div class="mt-10 sm:mx-auto sm:w-full sm:max-w-xl lg:max-w-3xl">
+  <form class="space-y-6" [formGroup]="signupForm" (ngSubmit)="onSubmit()">
+    <div class="flex justify-between">
+      <div class="mt-2 me-2 w-1/2">
+        <input
+          id="firstName"
+          name="firstName"
+          type="text"
+          autocomplete="given-name"
+          formControlName="firstName"
+          placeholder="الاسم الاول"
+          [ngClass]="{
+            'is-invalid':
+              (signupForm.controls['firstName'].touched || signupForm.controls['firstName'].dirty) &&
+              !signupForm.controls['firstName'].valid
+          }"
+          class="block w-full rounded-2xl border-gray-500 border-2 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-1 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 ps-2 lg:ps-4"
+        />
+        <span
+          class="invalid-feedback"
+          *ngIf="signupForm.controls['firstName'].touched || signupForm.controls['firstName'].dirty"
+        >
+          <span *ngIf="signupForm.hasError('required', 'firstName')"> Please enter your first name. </span>
+          <span
+            *ngIf="
+              signupForm.hasError('pattern', 'firstName') &&
+              (!signupForm.hasError('minlength', 'firstName') || !signupForm.hasError('maxlength', 'firstName'))
+            "
+          >
+            must be string.
+          </span>
+          <span *ngIf="signupForm.hasError('minlength', 'firstName')"> must be longer than 3 characters. </span>
+          <span *ngIf="signupForm.hasError('maxlength', 'firstName')"> must be less than 20 characters. </span>
+        </span>
+      </div>
+      <div class="mt-2 ms-2 w-1/2">
+        <input
+          id="lastName"
+          name="lastName"
+          type="text"
+          autocomplete="family-name"
+          formControlName="lastName"
+          placeholder="الاسم الاخير"
+          [ngClass]="{
+            'is-invalid':
+              (signupForm.controls['lastName'].touched || signupForm.controls['lastName'].dirty) &&
+              !signupForm.controls['lastName'].valid
+          }"
+          class="block w-full rounded-2xl border-gray-500 border-2 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-1 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 ps-2 lg:ps-4"
+        />
+        <span
+          class="invalid-feedback"
+          *ngIf="signupForm.controls['lastName'].touched || signupForm.controls['lastName'].dirty"
+        >
+          <span *ngIf="signupForm.hasError('required', 'lastName')"> Please enter your first name. </span>
+          <span
+            *ngIf="
+              signupForm.hasError('pattern', 'lastName') &&
+              (!signupForm.hasError('minlength', 'lastName') || !signupForm.hasError('maxlength', 'lastName'))
+            "
+          >
+            must be string.
+          </span>
+          <span *ngIf="signupForm.hasError('minlength', 'lastName')"> must be longer than 3 characters. </span>
+          <span *ngIf="signupForm.hasError('maxlength', 'lastName')"> must be less than 20 characters. </span>
+        </span>
+      </div>
+    </div>
+    <div class="flex justify-between">
+      <div class="me-2 w-1/2">
+        <ngx-intl-tel-input
+          formControlName="phoneNumber"
+          name="phoneNumber"
+          customPlaceholder="01-000-000-000"
+          [preferredCountries]="preferredCountries"
+          [enableAutoCountrySelect]="true"
+          [enablePlaceholder]="true"
+          [searchCountryFlag]="true"
+          [searchCountryField]="[SearchCountryField.Iso2]"
+          [selectFirstCountry]="false"
+          [selectedCountryISO]="CountryISO.Egypt"
+          [maxLength]="15"
+          [phoneValidation]="true"
+          [separateDialCode]="separateDialCode"
+          [numberFormat]="PhoneNumberFormat.National"
+          [cssClass]="customPhoneStyle()"
+        >
+        </ngx-intl-tel-input>
+        <span class="invalid-feedback" *ngIf="signupForm.controls['phoneNumber'].touched">
+          <span *ngIf="signupForm.hasError('required', 'phoneNumber')"> phone number required. </span>
+          <span *ngIf="signupForm.controls['phoneNumber'].invalid && !signupForm.hasError('required', 'phoneNumber')">
+            phone number not valid with this country.
+          </span>
+        </span>
+      </div>
+      <div class="ms-2 w-1/2">
+        <input
+          formControlName="email"
+          name="email"
+          type="email"
+          autocomplete="email"
+          placeholder="test@gmail.com"
+          [ngClass]="{ 'is-invalid': isInvalidInput('email') }"
+          class="block w-full rounded-2xl border-gray-500 border-2 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-1 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 ps-2 lg:ps-4"
+        />
+        <span
+          class="invalid-feedback"
+          *ngIf="signupForm.controls['email'].touched || signupForm.controls['email'].dirty"
+        >
+          <span *ngIf="signupForm.hasError('required', 'email')"> Email required. </span>
+          <span *ngIf="signupForm.hasError('pattern', 'email') && !signupForm.hasError('required', 'email')">
+            Email Syntax is wrong.
+          </span>
+        </span>
+      </div>
+    </div>
+    <div class="relative">
+      <input
+        placeholder="كلمه المرور"
+        [type]="showPassword ? 'text' : 'password'"
+        name="password"
+        formControlName="password"
+        autocomplete="off"
+        [ngClass]="{ 'is-invalid': isInvalidInput('password') }"
+        class="block w-full rounded-2xl border-gray-500 border-2 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-1 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 ps-2 lg:ps-4"
+      />
+
+      <div class="absolute inset-y-0 left-4 pr-3 flex items-center text-sm leading-5 cursor-pointer">
+        <svg
+          *ngIf="showPassword"
+          (click)="showPassword = !showPassword"
+          class="h-6 w-6 text-gray-700"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke-width="2.5"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88"
+          />
+        </svg>
+        <svg
+          *ngIf="!showPassword"
+          (click)="showPassword = !showPassword"
+          class="h-6 w-6 text-gray-700"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke-width="2.5"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"
+          />
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+        </svg>
+      </div>
+    </div>
+    <span
+      class="invalid-feedback my-1 ps-4"
+      *ngIf="
+        (signupForm.controls['password'].touched || signupForm.controls['password'].dirty) &&
+        !signupForm.controls['password'].valid
+      "
+    >
+      <span *ngIf="signupForm.hasError('required', 'password')"> password is Required !!. </span>
+      <span *ngIf="signupForm.hasError('pattern', 'password') && !signupForm.hasError('required', 'password')">
+        Must contain at least one number and one uppercase and lowercase letter, and at least 8
+      </span>
+    </span>
+
+    <div class="relative">
+      <input
+        placeholder="تاكيد كلمه المرور"
+        [type]="showPasswordConfirm ? 'text' : 'password'"
+        name="passwordConfirm"
+        formControlName="passwordConfirm"
+        autocomplete="off"
+        [ngClass]="{ 'is-invalid': isInvalidInput('passwordConfirm') }"
+        class="block w-full rounded-2xl border-gray-500 border-2 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-1 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 ps-2 lg:ps-4"
+      />
+
+      <div class="absolute inset-y-0 left-4 pr-3 flex items-center text-sm leading-5 cursor-pointer">
+        <svg
+          *ngIf="showPasswordConfirm"
+          (click)="showPasswordConfirm = !showPasswordConfirm"
+          class="h-6 w-6 text-gray-700"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke-width="2.5"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88"
+          />
+        </svg>
+        <svg
+          *ngIf="!showPasswordConfirm"
+          (click)="showPasswordConfirm = !showPasswordConfirm"
+          class="h-6 w-6 text-gray-700"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke-width="2.5"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"
+          />
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+        </svg>
+      </div>
+    </div>
+
+    <span
+      class="invalid-feedback my-1 ps-4"
+      *ngIf="signupForm.hasError('required', 'passwordConfirm') && signupForm.controls['passwordConfirm'].touched"
+    >
+      password confirm is Required !!.
+    </span>
+    <span class="invalid-feedback my-1 ps-4" *ngIf="signupForm.errors?.['matchError']">
+      Two Passwords don't Match..
+    </span>
+    <div dir="rtl" class="px-2 flex">
+      <div class="round">
+        <input type="checkbox" formControlName="terms" name="terms" [checked]="applyTerms" id="checkbox" />
+        <label for="checkbox"></label>
+      </div>
+      <p class="text-sm ms-6 font-din text-slate-200">
+        أوافق علي كافه <span class="text-orange-500 font-dinBold"> الشروط والاحكام</span>
+      </p>
+    </div>
+    <span class="invalid-feedback my-2 ps-4" *ngIf="termsFailure && !signupForm.controls['terms'].value"
+      >please accept T & C</span
+    >
+    <div class="flex items-center justify-center">
+      <button
+        type="submit"
+        class="flex w-max px-14 justify-center bg-orange-500 rounded-full py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-orange-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+      >
+        تسجيل
+      </button>
+    </div>
+    <div class="flex items-center justify-center">
+      <p class="flex w-max px-14 justify-center text-sm font-semibold leading-6 text-white">
+        لديك حساب
+        <span class="ms-2 text-orange-500"><a class="cursor-pointer" routerLink="/task1/login">تسجيل دخول</a></span>
+      </p>
+    </div>
+    <div class="flex items-center justify-center">
+      <div class="w-3/6 h-6 or"></div>
+    </div>
+  </form>
+</div>
