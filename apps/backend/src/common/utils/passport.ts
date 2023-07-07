@@ -36,22 +36,25 @@ const verifyCallBackFb = async (_accessToken: string, _refreshToken: string, pro
   try {
     let user = await User.findOne({ where: { email: profile.emails[0].value } });
     if (user) {
-      if (user.facebookID) {
-        Object.assign(user, { firstRegistration: false });
-        user = User.build({ ...user });
+      if (user.toJSON().facebookID) {
+        const newUser = user.toJSON();
+
+        Object.assign(newUser, { firstRegistration: false });
+        user.set({ ...newUser });
         await user.save({ validate: false });
-        return done(null, { ...user.userData() });
+        return done(null, { ...user.toJSON() });
       } else {
+        const newUser = user.toJSON();
         Object.assign(
-          user,
+          newUser,
           profile.id && { facebookID: profile['id'] },
-          profile._json && { facebookInfo: profile._json },
-          profile.photos && user.image == '' && { image: profile.photos[0].value },
+          profile._json && { facebookInfo: JSON.stringify(profile._json) },
+          profile.photos && { image: profile.photos[0].value },
           { emailVerified: true, firstRegistration: false },
         );
-        user = User.build({ ...user });
+        user.set({ ...newUser });
         await user.save({ validate: false });
-        return done(null, { ...user.userData() });
+        return done(null, { ...user.toJSON() });
       }
     } else {
       user = User.build({
@@ -61,11 +64,11 @@ const verifyCallBackFb = async (_accessToken: string, _refreshToken: string, pro
         email: profile.emails[0].value,
         image: profile.photos[0].value || '',
         emailVerified: true,
-        facebookInfo: { ...profile._json },
+        facebookInfo: JSON.stringify(profile._json),
         firstRegistration: true,
       });
       await user.save({ validate: false });
-      return done(null, { ...user.userData() });
+      return done(null, { ...user.toJSON() });
     }
   } catch (error: unknown) {
     done(error);
