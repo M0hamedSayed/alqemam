@@ -1,2 +1,9 @@
-<alqemam-task-nx-welcome></alqemam-task-nx-welcome>
-<router-outlet></router-outlet>
+<!-- <alqemam-task-nx-welcome></alqemam-task-nx-welcome> -->
+<!-- <alqemam-task-register></alqemam-task-register> -->
+<div *ngIf="loading$ | async; else outlet">
+  <alqemam-task-alqemam-logo></alqemam-task-alqemam-logo>
+</div>
+<ng-template #outlet>
+  <router-outlet></router-outlet>
+</ng-template>
+<ng-toast></ng-toast>
