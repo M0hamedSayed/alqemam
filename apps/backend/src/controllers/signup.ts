@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { NextFunction, Request, RequestHandler, Response } from 'express';
+import { NextFunction, RequestHandler, Response } from 'express';
 import { User } from '../common/config/db-config';
 import { asyncHandler } from '../middlewares/asyncHandler';
 
@@ -7,36 +7,9 @@ import { generateOTP } from '../common/utils/generateOTP';
 import config from '../common/config/env-config';
 import { sendEmail } from '../common/utils/emailTransporter';
 import { logger } from '../common/utils/logger';
-
-interface ISignup {
-  firstName: string;
-  lastName: string;
-  email: string;
-  password: string;
-  passwordConfirm: string;
-  country: string;
-  phoneNumber: string | number;
-}
-
-interface IUser {
-  id: number;
-  fullName: string;
-  email: string;
-  phoneNumber: string | number;
-  country: string;
-  otp: string;
-  firstName: string;
-  lastName: string;
-  otpValidTo: Date;
-  emailVerified: boolean;
-  firstRegistration: boolean;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-interface IReqWithUser extends Request {
-  user: IUser;
-}
+import { signJWT } from '../common/utils/jwt';
+import { IReqWithUser } from '../types';
+import { ISignup, IUser } from '@alqemam/shared';
 
 export const signupPost: RequestHandler = asyncHandler(
   async (req: IReqWithUser, _res: Response, next: NextFunction) => {
@@ -57,13 +30,8 @@ export const signupPost: RequestHandler = asyncHandler(
       otpValidTo,
     });
 
-    logger.info(user.toJSON());
-
     req.user = user.toJSON() as IUser;
     logger.info(user.email);
-
-    // req.user = { ...user.userData() };
-
     next();
   },
 );
@@ -71,8 +39,6 @@ export const signupPost: RequestHandler = asyncHandler(
 export const sendVerificationEmail: RequestHandler = asyncHandler(
   async (req: IReqWithUser, res: Response, _next: NextFunction) => {
     const user = req.user;
-    logger.info(user);
-
     const link = `${config.frontUrl}/user/verify/${user.id}/${user.otp}`;
     //generate html code
     const html = `<h3 style="color:blue;">Hello, ${user.fullName}</h3>
@@ -83,8 +49,41 @@ export const sendVerificationEmail: RequestHandler = asyncHandler(
         </p>`;
     await sendEmail(user.email, 'Verify Email', html);
 
+    res.status(201).json({
+      message: 'Registration successful ,An Email sent to your account please verify',
+      data: req.user,
+      success: true,
+    });
+  },
+);
+
+export const sendWelcomeMailSocial: RequestHandler = asyncHandler(
+  async (req: IReqWithUser, res: Response, _next: NextFunction) => {
+    const user = req.user;
+    const { id, email, fullName } = user;
+    console.log(user);
+
+    const accessToken = signJWT({ id, email, fullName }, '3d');
+    let html = '';
+    if (user.firstRegistration) {
+      html = `<h3 style="color:blue;">Hello, ${user.fullName}</h3>
+                <h4>Welcome</h4>
+                <p>Thanks for signing up with us to use HiveSpace</p>`;
+    } else {
+      html = `<h3 style="color:blue;">Hello, ${user.fullName}</h3>
+                <h4>Welcome Back </h4>
+                <p>Make yourself at home</p>`;
+    }
+    await sendEmail(user.email, 'welcome email', html);
+
     res
-      .status(201)
-      .json({ message: 'Registration successful ,An Email sent to your account please verify', user: req.user });
+      .cookie('jwt', accessToken, {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'none',
+        maxAge: 3 * 24 * 60 * 60 * 1000,
+      })
+      .status(301)
+      .redirect(`${config.frontUrl}/task1`);
   },
 );
