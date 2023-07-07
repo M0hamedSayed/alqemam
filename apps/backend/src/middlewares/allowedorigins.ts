@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from 'express';
 import { ICors } from '../types';
 import { CorsError } from '@alqemam/express-errors';
 import { logger } from '../common/utils/logger';
+import config from '../common/config/env-config';
 
 export class AllowedOrigins {
   constructor(public options: ICors = { origins: '*', credentials: false }) {}
@@ -9,7 +10,7 @@ export class AllowedOrigins {
   middleware() {
     logger.info(this.options);
     return (req: Request, res: Response, next: NextFunction) => {
-      const origin = req.headers.origin;
+      const origin = req.headers.origin || config.baseUrl;
       if (!this.options.origins.includes(origin) && this.options.origins !== '*') {
         throw new CorsError();
       }
