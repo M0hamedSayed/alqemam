@@ -36,7 +36,10 @@ const morgan = new Morgan({ developmentMode });
 app.use(morgan.middleware());
 
 //allowed origins
-const allowedOrigins = new AllowedOrigins();
+const allowedOrigins = new AllowedOrigins({
+  origins: ['https://localhost:3000', 'http://localhost:4200'],
+  credentials: true,
+});
 app.use(allowedOrigins.middleware());
 
 //body parser
