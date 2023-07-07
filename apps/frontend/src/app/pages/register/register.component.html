@@ -1,0 +1,38 @@
+<div class="absolute top-10 right-10">
+  <a routerLink="/tasks">
+    <p-button icon="pi pi-home "></p-button>
+  </a>
+</div>
+<div dir="rtl" class="flex h-screen flex-col justify-center bg-[#043367] px-6 py-12 lg:px-8">
+  <div class="sm:mx-auto sm:w-full sm:max-w-sm">
+    <video
+      class="mx-auto h-28 w-auto"
+      src="https://www.alqemam.com/wp-content/uploads/2019/06/Al-Qemam-Logo-Animated.webm"
+      autoplay=""
+      loop=""
+      muted="muted"
+      playsinline=""
+      controlslist="nodownload"
+      alt="alqemam"
+    ></video>
+    <h2 class="mt-4 text-center text-3xl font-dinBold leading-9 tracking-tight text-white">تسجيل جديد</h2>
+    <p class="mt-4 text-lg text-center font-din text-slate-200">قم بالتسجيل لنتائج بحثيه افضل</p>
+  </div>
+
+  <!-- <alqemam-task-register-form></alqemam-task-register-form> -->
+  <router-outlet></router-outlet>
+
+  <div class="flex items-center justify-center mt-2">
+    <p class="flex w-max px-14 justify-center text-sm font-semibold leading-6 text-white">أو التسجيل عبر</p>
+  </div>
+  <div class="flex items-center justify-center mt-4">
+    <a
+      [href]="baseURL + 'auth/facebook'"
+      class="h-14 p-1 bg-gray-100 rounded-full transition duration-300 hover:bg-gray-200 w-18"
+    >
+      <div class="flex items-center justify-center">
+        <img src="../../../assets/images/Facebook.svg" class="w-12" alt="facebook logo" />
+      </div>
+    </a>
+  </div>
+</div>
