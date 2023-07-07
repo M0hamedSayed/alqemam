@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/naming-convention */
 /* eslint-disable no-use-before-define */
 import { DataTypes, Model, Sequelize } from 'sequelize';
@@ -26,37 +27,20 @@ export class User extends Model {
   createdAt: Date;
   updatedAt: Date;
 
-  async comparePassword(password: string): Promise<boolean> {
+  async comparePassword(password: string): Promise<number> {
+    if (!this.getDataValue('passwordHash')) return 1;
     const match = await bcrypt.compare(password, this.getDataValue('passwordHash'));
-    if (!match) return false;
-    return true;
+    if (!match) return 0;
+    return 2;
   }
 
-  public toJSON(): object {
+  public toJSON(): any {
     const values = Object.assign({}, this.get());
     delete values.password;
     delete values.passwordConfirm;
     delete values.passwordHash;
-    values.id = this.id;
+    values.id = this.id || this.getDataValue('id');
     return values;
-  }
-
-  userData() {
-    return {
-      id: this.id,
-      fullName: this.getDataValue('fullName'),
-      image: this.getDataValue('image'),
-      email: this.getDataValue('email'),
-      phoneNumber: this.getDataValue('phoneNumber'),
-      country: this.getDataValue('country'),
-      facebookInfo: this.getDataValue('facebookInfo'),
-      firstRegistration: this.getDataValue('firstRegistration'),
-      emailVerified: this.getDataValue('emailVerified'),
-      otp: this.getDataValue('otp'),
-      otpValidTo: this.getDataValue('otpValidTo'),
-      createdAt: this.getDataValue('createdAt'),
-      updatedAt: this.getDataValue('updatedAt'),
-    };
   }
 }
 
@@ -124,7 +108,7 @@ export default (sequelize: Sequelize, DataTypes: DataType) => {
         allowNull: true,
       },
       facebookInfo: {
-        type: DataTypes.JSON,
+        type: DataTypes.TEXT,
         allowNull: true,
       },
       emailVerified: {
@@ -151,14 +135,15 @@ export default (sequelize: Sequelize, DataTypes: DataType) => {
     {
       defaultScope: {
         attributes: {
-          exclude: ['password', 'passwordConfirm', 'passwordHash'],
+          include: ['id'],
+          exclude: ['password', 'passwordConfirm'],
         },
       },
       sequelize,
       validate: {
         validatePhoneNumber() {
           if (this.getDataValue('phoneNumber') && this.getDataValue('country'))
-            validateCountryPhone(this.getDataValue('phoneNumber'), this.getDataValue('country') || 'Egypt');
+            validateCountryPhone(this.getDataValue('phoneNumber'), this.getDataValue('country') || 'EG');
         },
         validatePassword() {
           handlePassErrors(this.getDataValue('password'), this.getDataValue('passwordConfirm'));
@@ -170,20 +155,3 @@ export default (sequelize: Sequelize, DataTypes: DataType) => {
     },
   );
 };
-
-// User.addHook('afterValidate', (user: User) => {
-//   const salt = bcrypt.genSaltSync(10);
-//   user.setDataValue('passwordHash', bcrypt.hashSync(user.password, salt));
-// });
-
-// User.sync({ alter: true }).then(() => {
-//   return User.create({
-//     firstName: 'mohamed',
-//     lastName: 'sayed',
-//     email: 'mohamed.sayed.atiaa@gmail.com',
-//     password: 'Mohasa*01660',
-//     passwordConfirm: 'Mohasa*01660',
-//   }).then(data => {
-//     console.log(data);
-//   });
-// });
