@@ -21,12 +21,11 @@ const initializeDB = async () => {
   try {
     const connection = await mysql.createConnection({ host: dbHost, user: dbUserName, password: dbPassword });
     await connection.query(`CREATE DATABASE IF NOT EXISTS \`${dbName}\`;`);
-    // db.models.User = UserModel(db.sequelize, DataTypes);
   } catch (error: unknown) {
     throw new Error(error as string);
   }
 };
-
+// models
 export const User = UserModel(sequelize, DataTypes);
 
 export const closeConnection = async () => {
@@ -47,14 +46,6 @@ export const connectDB = async () => {
     //Synchronizing all models at once
     await sequelize.sync({ alter: true });
     logger.info('All models were synchronized successfully.');
-
-    // await User.create({
-    //   firstName: 'mohamed',
-    //   lastName: 'sayed',
-    //   email: 'mohamed.sayed.atiaa@gmail.com',
-    //   password: 'Mohasa*01660',
-    //   passwordConfirm: 'Mohasa*01660',
-    // });
   } catch (error: unknown) {
     throw new DbConnectionError(error as string);
   }
