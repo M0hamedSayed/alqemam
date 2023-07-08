@@ -6,12 +6,11 @@ EXPOSE 80
 
 USER root
 
-RUN chown -R 1001:1001 /usr/share/nginx/html && \
-    chown -R 1001:1001 /etc/nginx/conf.d
+RUN  /usr/share/nginx/html && \
+     /etc/nginx/conf.d
 
-COPY --chown=1001:1001  /dist/apps/frontend /usr/share/nginx/html
+COPY  /dist/apps/frontend /usr/share/nginx/html
 
-USER 1001
 
 CMD echo "server { \
       listen       80; \
