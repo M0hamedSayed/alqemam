@@ -35,6 +35,10 @@ runs:
       shell: bash
       run: pnpm -v
 
+    - name: Install dev dependencies
+      shell: bash
+      run: pnpm install -D
+
     - name: Install dependencies
       shell: bash
       run: pnpm install
