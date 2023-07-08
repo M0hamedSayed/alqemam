@@ -16,6 +16,8 @@ spec:
       containers:
         - name: front-alqemam
           image: hub.hivespaces.org/alqemam/front
+          ports:
+            - containerPort: 80
           resources:
             requests:
               cpu: '50m'
@@ -36,4 +38,4 @@ spec:
     - name: front-alqemam
       protocol: TCP
       port: 4200
-      targetPort: 4200
+      targetPort: 80
