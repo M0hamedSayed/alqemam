@@ -1,0 +1,72 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql-alqemam
+  namespace: production
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql-alqemam
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: mysql-alqemam
+    spec:
+      volumes:
+        - name: mysql-storage
+          persistentVolumeClaim:
+            claimName: mysql-pvc
+      containers:
+        - name: mysql-alqemam
+          image: mysql:8.0
+          resources:
+            requests:
+              cpu: '50m'
+              memory: '128Mi'
+            limits:
+              memory: '256Mi'
+              cpu: '100m'
+          ports:
+            - containerPort: 3306
+              name: mysql-alqemam
+          volumeMounts:
+            - name: mysql-storage
+              mountPath: /var/lib/mysql
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                configMapKeyRef:
+                  name: api-alqemam-config
+                  key: DB_PASSWORD
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                configMapKeyRef:
+                  name: api-alqemam-config
+                  key: DB_PASSWORD
+            - name: MYSQL_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: api-alqemam-config
+                  key: DB_USERNAME
+            - name: MYSQL_DATABASE
+              valueFrom:
+                configMapKeyRef:
+                  name: api-alqemam-config
+                  key: DB_NAME
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql-alqemam-srv
+  namespace: production
+spec:
+  selector:
+    app: mysql-alqemam
+  ports:
+    - name: mysql-alqemam
+      protocol: TCP
+      port: 3306
+      targetPort: 3306
