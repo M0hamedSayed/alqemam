@@ -4,11 +4,6 @@ LABEL maintainer="Mohamed Sayed <mohamed.sayed.atiaa@gmail.com>"
 
 EXPOSE 80
 
-USER root
-
-RUN  /usr/share/nginx/html && \
-     /etc/nginx/conf.d
-
 COPY  /dist/apps/frontend /usr/share/nginx/html
 
 
