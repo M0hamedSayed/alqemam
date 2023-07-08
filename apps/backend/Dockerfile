@@ -4,7 +4,7 @@ LABEL maintainer="Mohamed Sayed <mohamed.sayed.atiaa@gmail.com>"
 
 WORKDIR /usr/src/app
 
-COPY  ./dist/apps/backend/package.json ./dist/apps/backend/pnpm-lock.yaml ./
+COPY  ./dist/apps/backend/package.json ./
 
 ENV NODE_ENV=production
 
