@@ -26,7 +26,7 @@ import { SharedModule } from './components/shared/shared.module';
     RouterModule,
     RouterModule.forRoot(appRoutes, { initialNavigation: 'enabledBlocking' }),
   ],
-  providers: [{ provide: 'baseURL', useValue: 'https://localhost:3000/' }],
+  providers: [{ provide: 'baseURL', useValue: 'https://api-alqemam.hivespaces.org/' }],
   bootstrap: [AppComponent],
 })
 export class AppModule {}
