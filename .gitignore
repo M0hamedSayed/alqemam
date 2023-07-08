@@ -42,4 +42,6 @@ Thumbs.db
 
 **/*.env
 **/*.log
+key.pem
+cert.pem
 ./pnpm-lock.yaml

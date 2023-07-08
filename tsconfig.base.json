@@ -15,7 +15,8 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@alqemam/express-errors": ["libs/express-errors/src/index.ts"]
+      "@alqemam/express-errors": ["libs/express-errors/src/index.ts"],
+      "@alqemam/shared": ["libs/shared/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]
