@@ -1,0 +1,79 @@
+name: deploy-prod-manifests
+
+on:
+  push:
+    branches:
+      - 'production'
+    paths:
+      - 'infra/**'
+      - '.github/workflows/deploy-prod-manifests.yaml'
+      - '.github/actions/setup-kubectl/**'
+  pull_request:
+    branches:
+      - 'production'
+
+env:
+  # Branching
+  is-merge: ${{ github.event_name == 'push' && github.ref_name == 'production' }}
+  is-pull-request: ${{ github.event_name == 'pull_request' }}
+  # Docker Info
+  DOCKER_REGISTRY: ${{secrets.DOCKER_REGISTRY}}
+  DOCKER_USERNAME: ${{secrets.DOCKER_USERNAME}}
+  DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
+  IMAGE_REPO: ${{secrets.IMAGE_API}}
+  IMAGE_TAG: ${{ github.sha }}
+  # access k8s with kube-config
+  KUBE_CONFIG: ${{secrets.KUBE_CONFIG}}
+  #Node ENV
+  NODE_ENV: ${{secrets.NODE_ENV}}
+  BASE_API_URL: ${{secrets.BASE_API_URL}}
+  PORT: ${{secrets.PORT}}
+  DB_NAME: ${{secrets.DB_NAME}}
+  DB_USERNAME: ${{secrets.DB_USERNAME}}
+  DB_PASSWORD: ${{secrets.DB_PASSWORD}}
+  facebookCLIENT_ID: ${{secrets.facebookCLIENT_ID}}
+  facebookCLIENT_SECRET: ${{secrets.facebookCLIENT_SECRET}}
+  Admin_email: ${{secrets.Admin_email}}
+  Admin_pass: ${{secrets.Admin_pass}}
+  FRONT_URL: ${{secrets.FRONT_URL}}
+
+jobs:
+  build:
+    name: build
+    runs-on: self-hosted
+    # checkout code
+    steps:
+      - name: Check out source code
+        uses: actions/checkout@v3
+
+      # env sub set
+      - uses: tvarohohlavy/inplace-envsubst-action@v1.0.0
+        env:
+          NODE_ENV: ${{env.NODE_ENV}}
+          BASE_API_URL: ${{env.BASE_API_URL}}
+          PORT: ${{env.PORT}}
+          DB_NAME: ${{env.DB_NAME}}
+          DB_USERNAME: ${{env.DB_USERNAME}}
+          DB_PASSWORD: ${{env.DB_PASSWORD}}
+          facebookCLIENT_ID: ${{env.facebookCLIENT_ID}}
+          facebookCLIENT_SECRET: ${{env.facebookCLIENT_SECRET}}
+          Admin_email: ${{env.Admin_email}}
+          Admin_pass: ${{env.Admin_pass}}
+          FRONT_URL: ${{env.FRONT_URL}}
+        with:
+          files: |
+            infra/api-config.yaml
+
+      # Install kubectl and connect to cluster
+      - name: Install kubectl and connect to cluster
+        uses: ./.github/actions/setup-kubectl
+        env:
+          KUBE_CONFIG: ${{ env.KUBE_CONFIG }}
+      # apply dev manifests
+      - name: create production namespace
+        run: kubectl apply -f infra/prod-namespace.yaml
+      - name: Apply prod manifests
+        run: kubectl apply -f infra
+      # Get pods
+      - name: Get Pods
+        run: kubectl get pods -n production
