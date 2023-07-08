@@ -2,6 +2,9 @@
 FROM nginx:alpine
 LABEL maintainer="Mohamed Sayed <mohamed.sayed.atiaa@gmail.com>"
 
+RUN apt-get update
+RUN apt-get install nano
+
 EXPOSE 80
 
 COPY  /dist/apps/frontend /usr/share/nginx/html
