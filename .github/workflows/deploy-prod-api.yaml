@@ -71,6 +71,8 @@ jobs:
       # Set up dependencies
       - name: Set up dependencies
         uses: ./.github/actions/setup-dependencies
+        env:
+          NODE_ENV: 'development'
       # remove build
       - name: remove dist folder
         run: rm -rf dist/apps/backend
