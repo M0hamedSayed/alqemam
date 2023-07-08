@@ -8,7 +8,7 @@ import { Application, json, urlencoded } from 'express';
 import Morgan from './middlewares/morgan';
 import config from './common/config/env-config';
 import Server from './common/init/server-init';
-import { IServerOptions } from './types';
+import { ICerts, IServerOptions } from './types';
 import { logger } from './common/utils/logger';
 import { terminate } from './common/utils/gracefulShutdown';
 import { AllowedOrigins } from './middlewares/allowedorigins';
@@ -59,12 +59,16 @@ app.use(init().initialize());
 
 logger.info(`${__dirname}`);
 // initialize server
-const serverOptions: IServerOptions = {
-  developmentMode,
-  httpsInit: {
+let httpsInit: ICerts | false = false;
+if (developmentMode) {
+  httpsInit = {
     key: fs.readFileSync(path.join(__dirname, './assets/certs/key.pem')),
     cert: fs.readFileSync(path.join(__dirname, './assets/certs/cert.pem')),
-  },
+  };
+}
+const serverOptions: IServerOptions = {
+  developmentMode,
+  httpsInit,
   port: config.app.port,
 };
 

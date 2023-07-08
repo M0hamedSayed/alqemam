@@ -23,9 +23,9 @@
             "output": "apps/backend/src"
           },
           {
-            "input": "apps/backend",
-            "glob": ".env",
-            "output": "."
+            "input": "apps/backend/src",
+            "glob": "**/*.pem",
+            "output": "src"
           }
         ],
         "generatePackageJson": true,
