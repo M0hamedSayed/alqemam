@@ -82,10 +82,10 @@ jobs:
       # build app with nx
       - name: 'PR: Build application if affected by changes in feature branch'
         if: env.is-pull-request == 'true'
-        run: nx build backend
+        run: pnpx nx build backend
       - name: 'Merge: Build application'
         if: env.is-merge == 'true'
-        run: nx build backend
+        run: pnpx nx build backend
 
       # docker login
       - name: docker login to private registry
@@ -115,7 +115,6 @@ jobs:
           Admin_email: ${{env.Admin_email}}
           Admin_pass: ${{env.Admin_pass}}
           FRONT_URL: ${{env.FRONT_URL}}
-
         with:
           files: |
             infra/api-config.yaml
