@@ -35,10 +35,6 @@ runs:
       shell: bash
       run: pnpm -v
 
-    - name: Install dev dependencies
-      shell: bash
-      run: pnpm install -D
-
     - name: Install dependencies
       shell: bash
-      run: pnpm install
+      run: set NODE_ENV=development&&pnpm install
