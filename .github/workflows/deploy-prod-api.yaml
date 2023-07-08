@@ -26,17 +26,17 @@ env:
   # access k8s with kube-config
   KUBE_CONFIG: ${{secrets.KUBE_CONFIG}}
   #Node ENV
-  NODE_ENV: ${{secrets}}
-  BASE_API_URL: ${{secrets}}
-  PORT: ${{secrets}}
-  DB_NAME: ${{secrets}}
-  DB_USERNAME: ${{secrets}}
-  DB_PASSWORD: ${{secrets}}
-  facebookCLIENT_ID: ${{secrets}}
-  facebookCLIENT_SECRET: ${{secrets}}
-  Admin_email: ${{secrets}}
-  Admin_pass: ${{secrets}}
-  FRONT_URL: ${{secrets}}
+  NODE_ENV: ${{secrets.NODE_ENV}}
+  BASE_API_URL: ${{secrets.BASE_API_URL}}
+  PORT: ${{secrets.PORT}}
+  DB_NAME: ${{secrets.DB_NAME}}
+  DB_USERNAME: ${{secrets.DB_USERNAME}}
+  DB_PASSWORD: ${{secrets.DB_PASSWORD}}
+  facebookCLIENT_ID: ${{secrets.facebookCLIENT_ID}}
+  facebookCLIENT_SECRET: ${{secrets.facebookCLIENT_SECRET}}
+  Admin_email: ${{secrets.Admin_email}}
+  Admin_pass: ${{secrets.Admin_pass}}
+  FRONT_URL: ${{secrets.FRONT_URL}}
 
 concurrency:
   # Group concurrency on workflow, then:
