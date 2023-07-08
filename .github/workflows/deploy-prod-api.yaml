@@ -131,12 +131,7 @@ jobs:
           IMAGE_REPO: ${{env.IMAGE_REPO}}
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          kubectl apply -f infra/prod-namespace.yaml
           kubectl apply -f infra/api-config.yaml
-          kubectl apply -f infra/mysql-storage.yaml
-          kubectl apply -f infra/mysql-depl.yaml
-          kubectl apply -f infra/api-depl.yaml
-          kubectl apply -f infra/api-ingress.yaml
           kubectl set image deployments/api-alqemam api-alqemam=$DOCKER_REGISTRY/$IMAGE_REPO:$IMAGE_TAG -n production
           kubectl rollout restart deployment api-alqemam -n production
       # Get pods
