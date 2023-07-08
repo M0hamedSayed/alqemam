@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: front-alqemam
+  namespace: production
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: front-alqemam
+  template:
+    metadata:
+      labels:
+        app: front-alqemam
+    spec:
+      containers:
+        - name: front-alqemam
+          image: hub.hivespaces.org/alqemam/front
+          resources:
+            requests:
+              cpu: '50m'
+              memory: '128Mi'
+            limits:
+              memory: '256Mi'
+              cpu: '100m'
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: front-alqemam-srv
+  namespace: production
+spec:
+  selector:
+    app: front-alqemam
+  ports:
+    - name: front-alqemam
+      protocol: TCP
+      port: 4200
+      targetPort: 4200
