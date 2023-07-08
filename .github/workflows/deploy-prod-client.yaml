@@ -1,0 +1,106 @@
+name: deploy-prod-client
+
+on:
+  push:
+    branches:
+      - 'production'
+    paths:
+      - 'apps/frontend/**'
+      - '.github/workflows/deploy-prod-client.yaml'
+      - '.github/actions/setup-kubectl/**'
+      - '.github/actions/setup-dependencies/**'
+  pull_request:
+    branches:
+      - 'production'
+
+env:
+  # Branching
+  is-merge: ${{ github.event_name == 'push' && github.ref_name == 'production' }}
+  is-pull-request: ${{ github.event_name == 'pull_request' }}
+  # Docker Info
+  DOCKER_REGISTRY: ${{secrets.DOCKER_REGISTRY}}
+  DOCKER_USERNAME: ${{secrets.DOCKER_USERNAME}}
+  DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
+  IMAGE_REPO: ${{secrets.IMAGE_FRONT}}
+  IMAGE_TAG: ${{ github.sha }}
+  # access k8s with kube-config
+  KUBE_CONFIG: ${{secrets.KUBE_CONFIG}}
+
+concurrency:
+  # Group concurrency on workflow, then:
+  # - Is merge run? Group on branch name (`refs/heads/main`)
+  # - Is pull request? Group on pull request branch name, for example `feat/add-awesome-feature`
+  group: >-
+    ${{ github.workflow }}-${{
+      github.event_name == 'push'
+        && github.ref
+        || github.head_ref
+    }}
+  # Run merge workflows in sequence to prevent parallel deployments and releases
+  # Cancel stale pull request runs in progress for the same branch
+  cancel-in-progress: ${{ github.event_name != 'push' }}
+
+permissions:
+  # Required by nrwl/nx-set-shas
+  actions: read
+  contents: read
+
+jobs:
+  build:
+    name: build frontend
+    runs-on: self-hosted
+    steps:
+      #checkout source code
+      - name: Check out source code
+        uses: actions/checkout@v3
+        with:
+          # Required by nrwl/nx-set-shas
+          fetch-depth: 0
+      # Set up dependencies
+      - name: Set up dependencies
+        uses: ./.github/actions/setup-dependencies
+        env:
+          NODE_ENV: 'development'
+      # remove build
+      - name: remove dist folder
+        run: rm -rf dist/apps/frontend
+      # NX
+      - name: 'Derive appropriate SHAs for base and head for `nx affected` commands'
+        uses: nrwl/nx-set-shas@v2
+      # build app with nx
+      - name: 'Build application'
+        run: pnpx nx build frontend
+
+      # docker login
+      - name: docker login to private registry
+        run: docker login $DOCKER_REGISTRY -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+        env:
+          DOCKER_REGISTRY: ${{env.DOCKER_REGISTRY}}
+          DOCKER_USERNAME: ${{env.DOCKER_USERNAME}}
+          DOCKER_PASSWORD: ${{env.DOCKER_PASSWORD}}
+
+      # push auth-srv image
+      - name: push image to container registry
+        run: |
+          docker build -f apps/frontend/Dockerfile -t $DOCKER_REGISTRY/$IMAGE_REPO:$IMAGE_TAG -t $DOCKER_REGISTRY/$IMAGE_REPO:latest .
+          docker push $DOCKER_REGISTRY/$IMAGE_REPO:$IMAGE_TAG
+
+      # Install kubectl and connect to cluster
+      - name: Install kubectl and connect to cluster
+        uses: ./.github/actions/setup-kubectl
+        env:
+          KUBE_CONFIG: ${{ env.KUBE_CONFIG }}
+      # Restart frontend
+      - name: restart frontend
+        env:
+          DOCKER_REGISTRY: ${{env.DOCKER_REGISTRY}}
+          IMAGE_REPO: ${{env.IMAGE_REPO}}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          kubectl apply -f infra/front-depl.yaml
+          kubectl apply -f infra/front-ingress.yaml  
+          kubectl set image deployments/front-alqemam front-alqemam=$DOCKER_REGISTRY/$IMAGE_REPO:$IMAGE_TAG -n production
+          kubectl rollout restart deployment front-alqemam -n production
+      # Get pods
+      - name: Get pods
+        run: kubectl get pods -n production
