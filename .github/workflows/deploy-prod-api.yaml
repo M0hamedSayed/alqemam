@@ -1,0 +1,143 @@
+name: deploy-prod-api
+
+on:
+  push:
+    branches:
+      - 'production'
+    paths:
+      - 'apps/backend/**'
+      - '.github/workflows/deploy-prod-api.yaml'
+      - '.github/actions/setup-kubectl/**'
+      - '.github/actions/setup-dependencies/**'
+  pull_request:
+    branches:
+      - 'production'
+
+env:
+  # Branching
+  is-merge: ${{ github.event_name == 'push' && github.ref_name == 'production' }}
+  is-pull-request: ${{ github.event_name == 'pull_request' }}
+  # Docker Info
+  DOCKER_REGISTRY: ${{secrets.DOCKER_REGISTRY}}
+  DOCKER_USERNAME: ${{secrets.DOCKER_USERNAME}}
+  DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
+  IMAGE_REPO: ${{secrets.IMAGE_API}}
+  IMAGE_TAG: ${{ github.sha }}
+  # access k8s with kube-config
+  KUBE_CONFIG: ${{secrets.KUBE_CONFIG}}
+  #Node ENV
+  NODE_ENV: ${{secrets}}
+  BASE_API_URL: ${{secrets}}
+  PORT: ${{secrets}}
+  DB_NAME: ${{secrets}}
+  DB_USERNAME: ${{secrets}}
+  DB_PASSWORD: ${{secrets}}
+  facebookCLIENT_ID: ${{secrets}}
+  facebookCLIENT_SECRET: ${{secrets}}
+  Admin_email: ${{secrets}}
+  Admin_pass: ${{secrets}}
+  FRONT_URL: ${{secrets}}
+
+concurrency:
+  # Group concurrency on workflow, then:
+  # - Is merge run? Group on branch name (`refs/heads/main`)
+  # - Is pull request? Group on pull request branch name, for example `feat/add-awesome-feature`
+  group: >-
+    ${{ github.workflow }}-${{
+      github.event_name == 'push'
+        && github.ref
+        || github.head_ref
+    }}
+  # Run merge workflows in sequence to prevent parallel deployments and releases
+  # Cancel stale pull request runs in progress for the same branch
+  cancel-in-progress: ${{ github.event_name != 'push' }}
+
+permissions:
+  # Required by nrwl/nx-set-shas
+  actions: read
+  contents: read
+
+jobs:
+  build:
+    name: build backend
+    runs-on: self-hosted
+    steps:
+      #checkout source code
+      - name: Check out source code
+        uses: actions/checkout@v3
+        with:
+          # Required by nrwl/nx-set-shas
+          fetch-depth: 0
+      # Set up dependencies
+      - name: Set up dependencies
+        uses: ./.github/actions/setup-dependencies
+      # remove build
+      - name: remove dist folder
+        run: rm -rf dist/apps/backend
+      # NX
+      - name: 'Derive appropriate SHAs for base and head for `nx affected` commands'
+        uses: nrwl/nx-set-shas@v2
+      # build app with nx
+      - name: 'PR: Build application if affected by changes in feature branch'
+        if: env.is-pull-request == 'true'
+        run: nx build backend
+      - name: 'Merge: Build application'
+        if: env.is-merge == 'true'
+        run: nx build backend
+
+      # docker login
+      - name: docker login to private registry
+        run: docker login $DOCKER_REGISTRY -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+        env:
+          DOCKER_REGISTRY: ${{env.DOCKER_REGISTRY}}
+          DOCKER_USERNAME: ${{env.DOCKER_USERNAME}}
+          DOCKER_PASSWORD: ${{env.DOCKER_PASSWORD}}
+
+      # push auth-srv image
+      - name: push image to container registry
+        run: |
+          docker build -f apps/backend/Dockerfile -t $DOCKER_REGISTRY/$IMAGE_REPO:$IMAGE_TAG -t $DOCKER_REGISTRY/$IMAGE_REPO:latest .
+          docker push $DOCKER_REGISTRY/$IMAGE_REPO:$IMAGE_TAG
+
+      # env sub set
+      - uses: tvarohohlavy/inplace-envsubst-action@v1.0.0
+        env:
+          NODE_ENV: ${{env.NODE_ENV}}
+          BASE_API_URL: ${{env.BASE_API_URL}}
+          PORT: ${{env.PORT}}
+          DB_NAME: ${{env.DB_NAME}}
+          DB_USERNAME: ${{env.DB_USERNAME}}
+          DB_PASSWORD: ${{env.DB_PASSWORD}}
+          facebookCLIENT_ID: ${{env.facebookCLIENT_ID}}
+          facebookCLIENT_SECRET: ${{env.facebookCLIENT_SECRET}}
+          Admin_email: ${{env.Admin_email}}
+          Admin_pass: ${{env.Admin_pass}}
+          FRONT_URL: ${{env.FRONT_URL}}
+
+        with:
+          files: |
+            infra/api-config.yaml
+
+      # Install kubectl and connect to cluster
+      - name: Install kubectl and connect to cluster
+        uses: ./.github/actions/setup-kubectl
+        env:
+          KUBE_CONFIG: ${{ env.KUBE_CONFIG }}
+      # Restart backend
+      - name: restart backend
+        env:
+          DOCKER_REGISTRY: ${{env.DOCKER_REGISTRY}}
+          IMAGE_REPO: ${{env.IMAGE_REPO}}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          kubectl apply -f infra/prod-namespace.yaml
+          kubectl apply -f infra/api-config.yaml
+          kubectl apply -f infra/mysql-storage.yaml
+          kubectl apply -f infra/mysql-depl.yaml
+          kubectl apply -f infra/api-depl.yaml
+          kubectl apply -f infra/api-ingress.yaml
+          kubectl set image deployments/api-alqemam auth=$DOCKER_REGISTRY/$IMAGE_REPO:$IMAGE_TAG -n production
+          kubectl rollout restart deployment api-alqemam -n production
+      # Get pods
+      - name: Get pods
+        run: kubectl get pods -n production
