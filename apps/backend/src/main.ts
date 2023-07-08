@@ -37,7 +37,12 @@ app.use(morgan.middleware());
 
 //allowed origins
 const allowedOrigins = new AllowedOrigins({
-  origins: ['https://localhost:3000', 'http://localhost:4200'],
+  origins: [
+    'https://localhost:3000',
+    'http://localhost:4200',
+    'https://alqemam.hivespaces.org',
+    'https://api-alqemam.hivespaces.org',
+  ],
   credentials: true,
 });
 app.use(allowedOrigins.middleware());
