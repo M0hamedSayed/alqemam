@@ -1,0 +1,47 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: api-alqemam-org-tls
+  namespace: ingress-nginx
+spec:
+  secretName: api-alqemam-hivespaces-org
+  duration: 2160h # 90d
+  renewBefore: 360h # 15d
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer
+  commonName: api-alqemam.hivespaces.org
+  dnsNames:
+    - api-alqemam.hivespaces.org
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-api-alqemam-service
+  namespace: production
+  annotations:
+    kubernetes.io/ingress.class: 'nginx'
+    nginx.ingress.kubernetes.io/rewrite-target: /$1
+    nginx.ingress.kubernetes.io/use-regex: 'true'
+    nginx.ingress.kubernetes.io/ssl-redirect: 'false'
+    cert-manager.io/cluster-issuer: 'letsencrypt-prod'
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      if ($http_x_forwarded_proto = 'http') {
+        return 301 https://$host$request_uri;
+      }
+spec:
+  tls:
+    - hosts:
+        - api-alqemam.hivespaces.org
+      secretName: api-alqemam-hivespaces-org
+  rules:
+    - host: api-alqemam.hivespaces.org
+      http:
+        paths:
+          - path: '/?(.*)'
+            pathType: Prefix
+            backend:
+              service:
+                name: api-alqemam-srv
+                port:
+                  number: 3000
