@@ -1,0 +1,100 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-alqemam
+  namespace: production
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: api-alqemam
+  template:
+    metadata:
+      labels:
+        app: api-alqemam
+    spec:
+      containers:
+        - name: api-alqemam
+          image: hub.hivespaces.org/alqemam/api
+          env:
+            - name: NODE_ENV
+              valueFrom:
+                configMapKeyRef:
+                  name: api-alqemam-config
+                  key: NODE_ENV
+            - name: BASE_API_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: api-alqemam-config
+                  key: BASE_API_URL
+            - name: PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: api-alqemam-config
+                  key: PORT
+            - name: DB_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: api-alqemam-config
+                  key: DB_HOST
+            - name: DB_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: api-alqemam-config
+                  key: DB_NAME
+            - name: DB_USERNAME
+              valueFrom:
+                configMapKeyRef:
+                  name: api-alqemam-config
+                  key: DB_USERNAME
+            - name: DB_PASSWORD
+              valueFrom:
+                configMapKeyRef:
+                  name: api-alqemam-config
+                  key: DB_PASSWORD
+            - name: facebookCLIENT_ID
+              valueFrom:
+                configMapKeyRef:
+                  name: api-alqemam-config
+                  key: facebookCLIENT_ID
+            - name: facebookCLIENT_SECRET
+              valueFrom:
+                configMapKeyRef:
+                  name: api-alqemam-config
+                  key: facebookCLIENT_SECRET
+            - name: Admin_email
+              valueFrom:
+                configMapKeyRef:
+                  name: api-alqemam-config
+                  key: Admin_email
+            - name: Admin_pass
+              valueFrom:
+                configMapKeyRef:
+                  name: api-alqemam-config
+                  key: Admin_pass
+            - name: FRONT_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: api-alqemam-config
+                  key: FRONT_URL
+          resources:
+            requests:
+              cpu: '50m'
+              memory: '128Mi'
+            limits:
+              memory: '256Mi'
+              cpu: '100m'
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-alqemam-srv
+  namespace: production
+spec:
+  selector:
+    app: api-alqemam
+  ports:
+    - name: api-alqemam
+      protocol: TCP
+      port: 3000
+      targetPort: 3000
