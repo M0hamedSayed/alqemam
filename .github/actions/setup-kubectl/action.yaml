@@ -1,0 +1,24 @@
+name: Set up Kubectl
+description: Set up Kubectl for ARM based action runners.
+
+runs:
+  using: composite
+  steps:
+    - name: Install kubectl
+      shell: bash
+      run: |
+        curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/arm/kubectl"
+        curl -LO "https://dl.k8s.io/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/arm/kubectl.sha256"
+        echo "$(<kubectl.sha256) kubectl" | sha256sum --check
+        sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+        kubectl version --client
+
+    - name: connect to cluster
+      run: |
+        chmod +x ./scripts/github-actions-kubectl.sh
+        ./scripts/github-actions-kubectl.sh
+      shell: bash
+
+    - name: Get All Pods
+      shell: bash
+      run: kubectl get pods -A
