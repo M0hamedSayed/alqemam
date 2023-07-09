@@ -22,6 +22,44 @@ I build this workspace with monorepo concept using [`NX`](https://nx.dev/)
 │   └── shared
 ```
 
+**🔀 production workflow :**
+
+```bash
+├── .github
+│   ├── actions
+│   └── workflows
+```
+
+**🔀 k8s manifests :**
+
+```bash
+├── infra
+│   ├── api-config.yaml
+│   └── api-depl.yaml
+│   ├── api-ingress.yaml
+│   └── front-depl.yaml
+│   ├── front-ingress.yaml
+│   └── mysql-depl.yaml
+│   ├── mysql-storage.yaml
+│   └── prod-namespace.yaml
+```
+
+**🔀 connect to k8s cluster script :**
+
+```bash
+├── scripts
+│   ├── github-actions-kubectl.sh
+
+```
+
+**🔀 nginx conf :**
+
+```bash
+├── nginx
+│   ├── default.conf
+
+```
+
 **express-errors :**
 
 > handle custom errors
@@ -95,3 +133,12 @@ For more Instructions visit [`NX`](https://nx.dev/)
 1. create table
 2. sorting table
 3. search on table
+
+## Issues
+
+- fail to load module scripts with angular deployment
+  - ✅ fixed: refer base url to subfolder
+
+## License
+
+[MIT License](LISENCE)
