@@ -7,7 +7,7 @@ import { FunctionLike } from '../../types';
 const facebookStrategy = facebook.Strategy;
 
 const authOptionsFb = {
-  callbackURL: '/auth/facebook/callback',
+  callbackURL: `${config.baseUrl}/auth/facebook/callback`,
   clientID: config.facebook.clientId,
   clientSecret: config.facebook.clientSecret,
   profileFields: [
