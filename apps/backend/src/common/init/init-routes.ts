@@ -1,7 +1,8 @@
-import { Application, NextFunction, Request, Response } from 'express';
+import { Application } from 'express';
 import { notFoundHandler } from '../../middlewares/notFoundHandler';
 import { errorHandler } from '../../middlewares/errorHandler';
 import authRoutes from '../../routes/authRoutes';
+import { healthCheck } from '../../controllers/health';
 
 /**
  * @function
@@ -11,13 +12,9 @@ import authRoutes from '../../routes/authRoutes';
  */
 
 export default (app: Application) => {
-  app.get('/health', (_request: Request, response: Response, _next: NextFunction) => {
-    response.status(200).json({
-      success: true,
-      message: 'App is up & running.',
-      data: null,
-    });
-  });
+  app.get('/', healthCheck);
+
+  app.get('/health', healthCheck);
 
   app.use(authRoutes);
 
