@@ -10,7 +10,7 @@ export class ArrayFilterPipe implements PipeTransform {
     if (!value) return new Array(10).fill({});
     return value.filter((obj: object) => {
       const data = Object.values(obj);
-      return JSON.stringify(data).toLowerCase().includes(filter);
+      return JSON.stringify(data).toLowerCase().includes(filter.toLowerCase());
     });
   }
 }
