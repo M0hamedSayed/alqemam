@@ -20,6 +20,7 @@
         placeholder="Search keyword"
         class="p-2 px-4 bg-slate-300 rounded-3xl"
         [(ngModel)]="searchStr"
+        (input)="table.reset()"
       />
     </span>
     <a routerLink="/tasks">
@@ -37,6 +38,7 @@
   (sortFunction)="customSort($event)"
   [customSort]="true"
   [tableStyle]="{ 'min-width': '50rem' }"
+  #table
   currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
   [rowsPerPageOptions]="[2, 4, 6, 8, 10, 12, 14, 16, 18, 20]"
 >
