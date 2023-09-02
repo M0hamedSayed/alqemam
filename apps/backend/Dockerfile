@@ -28,7 +28,8 @@ ENV NODE_ENV production
 RUN apk add dumb-init
 
 # Create a non-root user and group
-RUN groupadd -r mohamed && useradd -m -r -g mohamed mohamed
+RUN addgroup -g 1001 -S mohamed && \
+    adduser -u 1001 -S -G mohamed mohamed
 # USER node
 WORKDIR /usr/src/app/
 RUN chown -R mohamed:mohamed /usr/src/app
