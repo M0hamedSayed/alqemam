@@ -16,6 +16,9 @@ spec:
       containers:
         - name: api-alqemam
           image: hub.hivespaces.org/alqemam/api
+          volumeMounts:
+            - mountPath: /usr/src/app/public/uploads
+              name: alqemam-storage
           env:
             - name: NODE_ENV
               valueFrom:
@@ -84,6 +87,10 @@ spec:
             limits:
               memory: '256Mi'
               cpu: '100m'
+      volumes:
+        - name: alqemam-storage
+          persistentVolumeClaim:
+            claimName: alqemam-pvc
 ---
 apiVersion: v1
 kind: Service
