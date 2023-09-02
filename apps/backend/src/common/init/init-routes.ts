@@ -17,7 +17,7 @@ export default (app: Application) => {
 
   app.get('/health', healthCheck);
   app.use('/media', express.static('/usr/src/app/public/uploads'));
-  app.use('/component', express.static('/usr/src/app/public/uploads'));
+  app.use('/elements', express.static('/usr/src/app/public/uploads'));
 
   app.use(authRoutes);
   app.use('/cv', cvRoutes);

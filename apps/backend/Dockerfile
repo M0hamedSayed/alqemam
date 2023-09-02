@@ -31,5 +31,5 @@ USER node
 WORKDIR /usr/src/app/
 
 COPY --chown=node:node --from=build /usr/src/app /usr/src/app
-
+RUN chmod a+rwx /usr/src/app
 CMD ["dumb-init", "node", "main.js"]
