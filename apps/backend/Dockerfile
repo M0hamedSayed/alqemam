@@ -35,5 +35,7 @@ WORKDIR /usr/src/app/
 RUN chown -R mohamed:mohamed /usr/src/app
 USER mohamed
 COPY --chown=mohamed:mohamed --from=build /usr/src/app /usr/src/app
+RUN mkdir -p /usr/src/app/public/uploads && \
+    chown -R mohamed:mohamed /usr/src/app/public/uploads
 # RUN chmod -R 777 /usr/src/app/*
 CMD ["dumb-init", "node", "main.js"]
