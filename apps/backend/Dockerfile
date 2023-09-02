@@ -28,14 +28,17 @@ ENV NODE_ENV production
 RUN apk add dumb-init
 
 # Create a non-root user and group
-RUN addgroup -g 1001 -S mohamed && \
-    adduser -u 1001 -S -G mohamed mohamed
+RUN addgroup -g 1001 -S nonroot && \
+    adduser -u 1001 -S -G nonroot nonroot
 # USER node
 WORKDIR /usr/src/app/
-RUN chown -R mohamed:mohamed /usr/src/app
-USER mohamed
-COPY --chown=mohamed:mohamed --from=build /usr/src/app /usr/src/app
+RUN chown -R nonroot:nonroot /usr/src/app
+USER nonroot
+COPY --chown=nonroot:nonroot --from=build /usr/src/app /usr/src/app
 RUN mkdir -p /usr/src/app/public/uploads && \
-    chown -R mohamed:mohamed /usr/src/app/public/uploads
+    chown -R nonroot:nonroot /usr/src/app/public/uploads
+
+USER nonroot
+
 # RUN chmod -R 777 /usr/src/app/*
 CMD ["dumb-init", "node", "main.js"]
