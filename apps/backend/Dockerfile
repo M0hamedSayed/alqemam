@@ -36,7 +36,7 @@ RUN chown -R nonroot:nonroot /usr/src/app
 USER nonroot
 COPY --chown=nonroot:nonroot --from=build /usr/src/app /usr/src/app
 RUN mkdir -p /usr/src/app/public/uploads && \
-    chown -R nonroot:nonroot /usr/src/app/public/uploads
+    chown -R nonroot:nonroot /usr/src/app/public/uploads/
 
 USER nonroot
 

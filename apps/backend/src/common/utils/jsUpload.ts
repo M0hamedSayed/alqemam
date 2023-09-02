@@ -6,7 +6,7 @@ import { BadRequestError } from '@alqemam/express-errors';
 // customize storage
 const storage = multer.diskStorage({
   destination: (_req: Request, _file: Express.Multer.File, cb: (error: Error, destination: string) => void) => {
-    cb(null, '/usr/src/app/public/uploads');
+    cb(null, './public/uploads');
   },
   filename: (_req: IReqWithUser, file: Express.Multer.File, cb: (error: Error, filename: string) => void) => {
     // const { user } = req;
