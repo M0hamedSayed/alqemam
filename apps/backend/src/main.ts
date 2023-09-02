@@ -26,7 +26,7 @@ import { connectDB } from './common/config/db-config';
 import { init } from './common/utils/passport';
 
 // secure headers with default helmet options
-app.use(loadHelmet());
+app.use(loadHelmet({ crossOriginResourcePolicy: false, crossOriginEmbedderPolicy: false }));
 
 //detect development mode
 const developmentMode: boolean = config.nodeEnv?.toLowerCase()?.includes('development');

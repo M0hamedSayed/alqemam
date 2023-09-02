@@ -16,6 +16,7 @@ export class AllowedOrigins {
       }
       res.header('Access-Control-Allow-Origin', origin);
       res.header('Access-Control-Allow-Methods', 'GET,POST,DELETE,PUT,OPTIONS');
+      res.setHeader('Cross-Origin-Resource-Policy', 'same-site');
       res.header('Access-Control-Allow-Headers', 'Content-Type,Authorization');
       res.header('Access-Control-Allow-Credentials', `${this.options.credentials}`);
       next();

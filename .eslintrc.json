@@ -28,19 +28,11 @@
         "camelcase": "off",
         "@typescript-eslint/naming-convention": [
           "error",
-          {
-            "selector": "default",
-            "format": ["camelCase"]
-          },
-          {
-            // variable name with varName or VARNAME
-            "selector": "variable",
-            "format": ["camelCase", "UPPER_CASE"]
-          },
+
           {
             // parameter name with varName or _varName
             "selector": "parameter",
-            "format": ["camelCase"],
+            "format": ["camelCase", "PascalCase"],
             "leadingUnderscore": "allow"
           },
           {

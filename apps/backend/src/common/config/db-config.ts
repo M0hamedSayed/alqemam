@@ -3,6 +3,11 @@
 import { DataTypes, Sequelize } from 'sequelize';
 import { logger } from '../utils/logger';
 import UserModel from '../../models/User';
+import CountriesModel from '../../models/Countries';
+import CitiesModel from '../../models/Cities';
+import UserInfoModel from '../../models/UserInfo';
+import CVTemplateModel from '../../models/CVTemplate';
+import userImgsModel from '../../models/user-imgs';
 import config from './env-config';
 import mysql from 'mysql2/promise';
 import { DbConnectionError } from '@alqemam/express-errors';
@@ -27,7 +32,27 @@ const initializeDB = async () => {
 };
 // models
 export const User = UserModel(sequelize, DataTypes);
-
+// countries and cities
+export const Countries = CountriesModel(sequelize, DataTypes);
+export const Cities = CitiesModel(sequelize, DataTypes);
+// users
+export const UserInfo = UserInfoModel(sequelize, DataTypes);
+// cvs
+export const CVTemplate = CVTemplateModel(sequelize, DataTypes);
+// user Images
+export const UserImgs = userImgsModel(sequelize, DataTypes);
+// relation between user and images
+UserInfo.hasMany(UserImgs, { onDelete: 'CASCADE', foreignKey: 'user_id' });
+UserImgs.belongsTo(UserInfo, { foreignKey: 'country_id' });
+// relation between countries & cities --> one to many
+Countries.hasMany(Cities, { onDelete: 'CASCADE', foreignKey: 'country_id' });
+Cities.belongsTo(Countries, { foreignKey: 'country_id' });
+// relation between cities & users --> one to many
+Cities.hasMany(UserInfo, { foreignKey: 'city_id' });
+UserInfo.belongsTo(Cities, { foreignKey: 'city_id' });
+// relation between cvTemplate & users --> many to many
+CVTemplate.belongsToMany(UserInfo, { through: 'cv_users' });
+UserInfo.belongsToMany(CVTemplate, { through: 'cv_users' });
 export const closeConnection = async () => {
   await sequelize.close();
 };
