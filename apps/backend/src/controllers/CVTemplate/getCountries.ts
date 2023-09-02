@@ -1,8 +1,8 @@
 import { NextFunction, Request, Response } from 'express';
-import { IPaginateBody } from '../types';
+import { IPaginateBody } from '../../types';
 import { Op } from 'sequelize';
-import { getPagination } from '../common/utils/pagination';
-import { Countries } from '../common/config/db-config';
+import { getPagination } from '../../common/utils/pagination';
+import { Countries } from '../../common/config/db-config';
 
 export const getCountries_post = async (req: Request, res: Response, _next: NextFunction) => {
   const { page, size, search }: IPaginateBody = req.body;
