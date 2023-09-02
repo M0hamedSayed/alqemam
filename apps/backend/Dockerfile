@@ -27,9 +27,12 @@ ENV NODE_ENV production
 #Safely terminate Node.js Docker web applications
 RUN apk add dumb-init
 
-USER node
+# Create a non-root user and group
+RUN groupadd -r mohamed && useradd -m -r -g mohamed mohamed
+# USER node
 WORKDIR /usr/src/app/
-
-COPY --chown=node:node --from=build /usr/src/app /usr/src/app
-RUN chmod a+rwx /usr/src/app
+RUN chown -R mohamed:mohamed /usr/src/app
+USER mohamed
+COPY --chown=mohamed:mohamed --from=build /usr/src/app /usr/src/app
+# RUN chmod -R 777 /usr/src/app/*
 CMD ["dumb-init", "node", "main.js"]
