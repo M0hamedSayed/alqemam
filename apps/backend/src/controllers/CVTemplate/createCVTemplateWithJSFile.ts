@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/typedef */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { ForbiddenError } from '@alqemam/express-errors';
 import { NextFunction, Request, Response } from 'express';
@@ -9,7 +10,7 @@ export const createCVTemplateWithJSFile = async (req: Request, res: Response, _n
   const componentName = (req as any).body.componentName;
   if (!componentName) throw new ForbiddenError('component name required !!');
   if (!jsFile) throw new ForbiddenError('file is missed !!');
-  const cvTemplate = await CVTemplate.findOrCreate({
+  const [cvTemplate, created] = await CVTemplate.findOrCreate({
     where: { name: componentName },
     defaults: {
       name: componentName,
@@ -17,9 +18,17 @@ export const createCVTemplateWithJSFile = async (req: Request, res: Response, _n
       content: `${config.baseUrl}/elements/${jsFile.originalname}`,
     },
   });
+  if (!created) {
+    cvTemplate.set({
+      name: componentName,
+      type: 'free',
+      content: `${config.baseUrl}/elements/${jsFile.originalname}`,
+    });
+    await cvTemplate.save();
+  }
   res.status(201).json({
     success: true,
     message: 'Template saved successfully',
-    data: cvTemplate,
+    data: cvTemplate.toJSON(),
   });
 };

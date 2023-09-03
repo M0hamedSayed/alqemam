@@ -17,16 +17,24 @@ import { saveAvatar } from '../controllers/CVTemplate/saveAvatar';
 import { createCVTemplateWithJSFile } from '../controllers/CVTemplate/createCVTemplateWithJSFile';
 import { jsFile } from '../common/utils/jsUpload';
 import { exportPdf } from '../controllers/CVTemplate/exportPdf';
+import { validateTokenMid } from '../controllers/validateToken';
 
 const cvRoutes: Router = express.Router();
 
-cvRoutes.post('/get-countries', getCountries_validate, validatorErrors, asyncHandler(getCountries_post));
-cvRoutes.post('/get-cities', getCities_validate, validatorErrors, asyncHandler(getCities_post));
-cvRoutes.post('/save-cv', asyncHandler(createCVTemplate));
-cvRoutes.post('/get-cv', validateTemplateID, validatorErrors, asyncHandler(getCVTemplate));
-cvRoutes.post('/save-cv-info', saveUserInfo_validate, validatorErrors, asyncHandler(saveUserInfo));
-cvRoutes.post('/upload-avatar', avatar, asyncHandler(saveAvatar));
-cvRoutes.post('/save-cv-component', jsFile, asyncHandler(createCVTemplateWithJSFile));
-cvRoutes.post('/export-pdf', asyncHandler(exportPdf));
+cvRoutes.post(
+  '/get-countries',
+  validateTokenMid,
+  getCountries_validate,
+  validatorErrors,
+  asyncHandler(getCountries_post),
+);
+cvRoutes.post('/get-cities', validateTokenMid, getCities_validate, validatorErrors, asyncHandler(getCities_post));
+cvRoutes.post('/save-cv', validateTokenMid, asyncHandler(createCVTemplate));
+cvRoutes.post('/get-cv', validateTokenMid, validateTemplateID, validatorErrors, asyncHandler(getCVTemplate));
+cvRoutes.post('/save-cv-info', validateTokenMid, saveUserInfo_validate, validatorErrors, asyncHandler(saveUserInfo));
+cvRoutes.post('/upload-avatar', validateTokenMid, avatar, asyncHandler(saveAvatar));
+cvRoutes.post('/save-cv-component', validateTokenMid, jsFile, asyncHandler(createCVTemplateWithJSFile));
+cvRoutes.post('/export-pdf', validateTokenMid, asyncHandler(exportPdf));
+cvRoutes.post('/get-all-cv', validateTokenMid, asyncHandler(exportPdf));
 
 export default cvRoutes;

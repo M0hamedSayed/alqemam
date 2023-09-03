@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextFunction, Request, RequestHandler, Response } from 'express';
 import { asyncHandler } from '../middlewares/asyncHandler';
 import { BadRequestError } from '@alqemam/express-errors';
@@ -15,3 +16,19 @@ export const validateToken: RequestHandler = asyncHandler(async (req: Request, r
   }
   res.status(200).json({ message: 'Token verified', data: payload, success: true });
 });
+
+export const validateTokenMid: RequestHandler = asyncHandler(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const cookies = req.cookies;
+    if (!cookies.jwt) throw new BadRequestError('Invalid Token');
+
+    const accessToken = cookies.jwt;
+    const { payload, expired } = verifyJWT(accessToken);
+    if (expired) {
+      res.clearCookie('jwt', { httpOnly: true, secure: true, sameSite: 'none' });
+      throw new BadRequestError('Token Expired');
+    }
+    (req as any).payload = payload;
+    next();
+  },
+);

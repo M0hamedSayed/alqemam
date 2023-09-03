@@ -54,6 +54,11 @@ export default (sequelize: Sequelize, DataTypes: DataType) => {
         autoIncrement: true,
         primaryKey: true,
       },
+      info_id: {
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4,
+        allowNull: true,
+      },
       firstName: {
         type: DataTypes.STRING,
         allowNull: false,

@@ -1,26 +1,54 @@
 /* eslint-disable no-use-before-define */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextFunction, Request, Response } from 'express';
-import path from 'path';
 import puppeteer from 'puppeteer';
+import { CVTemplate, Cities, Countries, User, UserImgs, UserInfo } from '../../common/config/db-config';
+import { Op } from 'sequelize';
 
-export const exportPdf = async (_req: Request, res: Response, _next: NextFunction) => {
+export const exportPdf = async (req: Request, res: Response, _next: NextFunction) => {
   // get id of user and cv id to get data from db
-  const userInfo = {
-    linkedinURL: 'https://www.linkedin.com/in/mohamed-sayed-13893a228/',
-    mySiteURL: 'https://www.linkedin.com/in/mohamed-sayed-13893a228/',
-    firstName: 'Mohamed',
-    lastName: 'Sayed',
-    phoneNumber: '+201005833382',
-    country: 'Egypt',
-    city: 'Fayoum',
-    email: 'mohamed.sayed.atiaa@gmail.com',
-    imgPath: 'https://flowbite.com/docs/images/people/profile-picture-2.jpg',
-  };
-  const cvPath = 'http://localhost:3000/component/template1.js';
-  console.log(cvPath);
+  const { payload } = req as any;
+  const { cvTemplateID } = req.body;
+  const userID = payload.id;
+  const userBase = await User.findByPk(userID, {
+    include: [{ model: UserInfo, attributes: ['id'] }],
+  });
+  const jsonUser = userBase.toJSON();
+  console.log(jsonUser);
 
-  const { cv, cvName } = cvHtml(userInfo, cvPath, 'cv-template-1');
+  const user = await UserInfo.findByPk(jsonUser.users.id, {
+    include: [
+      {
+        model: Cities,
+        attributes: ['id', 'name', 'country_code'],
+        include: [{ model: Countries, attributes: ['name'] }],
+      },
+      {
+        model: UserImgs,
+        where: { name: { [Op.like]: `%cv` } },
+        attributes: ['path'],
+        limit: 1,
+        order: [['createdAt', 'DESC']],
+      },
+      { model: CVTemplate, where: { id: cvTemplateID }, attributes: ['name', 'content'] },
+    ],
+  });
+  const userData = user.toJSON();
+  const userInfo = {
+    linkedinURL: userData.linkedin_URL,
+    mySiteURL: userData.linkedin_URL,
+    firstName: userData.first_name,
+    lastName: userData.last_name,
+    phoneNumber: userData.phone_number,
+    country: userData?.city?.Country?.name,
+    city: userData?.city?.name,
+    email: userData.email,
+    imgPath: userData?.['user-imgs'][0]?.path || 'https://flowbite.com/docs/images/people/profile-picture-2.jpg',
+  };
+  const cvPath = userData.CVTemplates[0].content;
+  const cvName = `./public/uploads/${userInfo.firstName}-${userInfo.lastName}-${userData.id}_CV.pdf`;
+
+  const cv = cvHtml(cvPath, userData.CVTemplates[0].name);
   console.log(cvName);
 
   const cvFile = await exportWebPageAsPdf(cv, cvName, userInfo);
@@ -32,7 +60,7 @@ export const exportPdf = async (_req: Request, res: Response, _next: NextFunctio
   });
 };
 
-const cvHtml = (info: any, cvPath: string, component: string) => {
+const cvHtml = (cvPath: string, component: string) => {
   const cv = `
 <!DOCTYPE html>
 <html lang="en">
@@ -50,8 +78,7 @@ const cvHtml = (info: any, cvPath: string, component: string) => {
 </html>
 `;
 
-  const cvName = path.join(__dirname, `../assets/components/${info.firstName}-${info.lastName}_CV.pdf`);
-  return { cv, cvName };
+  return cv;
 };
 const exportWebPageAsPdf = async (html: string, filePath: string, info: any) => {
   const browser = await puppeteer.launch({ headless: false, args: ['--disable-features=site-per-process'] });

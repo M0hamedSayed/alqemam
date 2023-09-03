@@ -41,6 +41,8 @@ export const UserInfo = UserInfoModel(sequelize, DataTypes);
 export const CVTemplate = CVTemplateModel(sequelize, DataTypes);
 // user Images
 export const UserImgs = userImgsModel(sequelize, DataTypes);
+UserInfo.hasOne(User, { foreignKey: 'info_id' });
+User.belongsTo(UserInfo, { foreignKey: 'info_id' });
 // relation between user and images
 UserInfo.hasMany(UserImgs, { onDelete: 'CASCADE', foreignKey: 'user_id' });
 UserImgs.belongsTo(UserInfo, { foreignKey: 'country_id' });
