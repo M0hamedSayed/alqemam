@@ -81,6 +81,8 @@ export class CrudComponent implements OnInit, OnDestroy {
   // Public methods
   // -------------------------------------------------------------------------
   customSort(event: SortEvent) {
+    console.log('test');
+
     (event.data as ITodo[]).sort((data1: ITodo, data2: ITodo) => {
       const value1 = data1[event.field as keyof ITodo];
       const value2 = data2[event.field as keyof ITodo];
